@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--mybatis的核心配置文件-->
+    <!--加载数据源配置文件jdbcc.properties-->
+    <properties resource="jdbc.properties" ></properties>
+    <!--起别名-->
+    <typeAliases>
+        <package name="cn.itcast"/>
+    </typeAliases>
+    <!--配置环境变量-->
+    <environments default="developement">
+        <environment id="developement">
+            <!--事物管理器-->
+            <transactionManager type="JDBC"></transactionManager>
+            <!--数据源-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}"></property>
+                <property name="url" value="${jdbc.url}"></property>
+                <property name="username" value="${jdbc.username}"></property>
+                <property name="password" value="${jdbc.password}"></property>
+
+            </dataSource>
+        </environment>
+    </environments>
+     <!--加载映射文件-->
+    <mappers>
+        <package name="cn.itcast.mapper"/>
+    </mappers>
+
+
+
+</configuration>

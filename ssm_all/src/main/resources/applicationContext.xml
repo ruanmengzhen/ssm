@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+">
+<!--spring核心配置文件-->
+    <!--配置注解的组件扫描包 需配context命名空间和约束-->
+    <context:component-scan base-package="cn.itcast">
+        <!--需要放行controller包下的@Controller注解-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!--将mybatis的配置文件整合到spring中，用以下配置代替sqlMapConfi.xml-->
+    <!--加载数据源配置文件jdbcc.properties-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!--将mybatis的SqlSessionFactoryBean 交给spring容器创建，得到sqlsession工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--起别名-->
+        <property name="typeAliasesPackage" value="cn.itcast"/>
+    </bean>
+
+    <!--配置Mapper包的扫描，加载映射文件-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入mapper包-->
+        <property name="basePackage" value="cn.itcast.mapper"/>
+    </bean>
+
+    <!--配置声明式事物控制   其底层时AOP，需要引入 tx命名空间和aop命名空间-->
+    <!--配置平台事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--事物增强配置-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--配置事物AOP织入，事物的app增强-->
+    <aop:config>
+        <aop:pointcut id="txPointcut" expression="execution(* cn.itcast.service.impl.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+    </aop:config>
+    <aop:aspectj-autoproxy  proxy-target-class="true"/>
+
+
+
+</beans>
