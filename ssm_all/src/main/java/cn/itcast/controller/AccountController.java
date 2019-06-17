@@ -44,5 +44,11 @@ public class AccountController {
         return modelAndView;
     }
 
+    public void find(){
+        int i=1;
+        i+=2;
+        System.out.println(i);
+    }
+
 
 }
